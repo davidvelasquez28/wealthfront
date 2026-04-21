@@ -25,7 +25,6 @@
     -webkit-font-smoothing: antialiased;
     position: relative;
   }
-  /* Grain overlay */
   body::before {
     content: "";
     position: fixed;
@@ -35,10 +34,6 @@
     z-index: 1000;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-
-  .mono { font-family: 'JetBrains Mono', monospace; }
-  .serif { font-family: 'Fraunces', serif; }
-  .italic { font-style: italic; }
 
   input, textarea, button {
     font-family: inherit;
@@ -53,9 +48,6 @@
   .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; position: relative; }
   @media (min-width: 768px) { .container { padding: 56px 32px 80px; } }
 
-  .border-ink { border: 2px solid var(--ink); }
-  .border-b-ink { border-bottom: 2px solid var(--ink); }
-  .border-t-ink { border-top: 2px solid var(--ink); }
   .card { background: var(--card); border: 2px solid var(--ink); padding: 24px; }
 
   .btn-primary {
@@ -69,7 +61,7 @@
     letter-spacing: 0.1em;
     cursor: pointer;
     box-shadow: 4px 4px 0 var(--accent);
-    transition: transform 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
   .btn-primary:hover { transform: translate(4px, -4px); box-shadow: 0 0 0 var(--accent); }
   .btn-primary:active { transform: translate(0, 0); box-shadow: 2px 2px 0 var(--accent); }
@@ -88,7 +80,6 @@
     transition: border-color 0.15s;
   }
   .input:focus { border-color: var(--accent); }
-  .input-error { border-color: var(--danger); }
 
   .label-mono {
     font-family: 'JetBrains Mono', monospace;
@@ -100,45 +91,6 @@
     margin-bottom: 6px;
   }
 
-  /* --- LOCK SCREEN --- */
-  .lock-screen {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .lock-inner { max-width: 440px; width: 100%; }
-  .lock-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 12px;
-    border: 2px solid var(--ink);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    font-weight: 600;
-  }
-  .lock-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(48px, 10vw, 72px);
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    line-height: 0.9;
-    margin: 28px 0 8px;
-  }
-  .lock-title .dot { color: var(--accent); }
-  .lock-sub {
-    font-style: italic;
-    color: var(--muted);
-    margin-bottom: 32px;
-    font-size: 15px;
-  }
-  .lock-form { display: flex; flex-direction: column; gap: 12px; }
-
-  /* --- HEADER --- */
   header {
     padding-bottom: 24px;
     margin-bottom: 48px;
@@ -201,7 +153,6 @@
     text-align: right;
   }
 
-  /* --- PORTFOLIO --- */
   .portfolio-section { margin-bottom: 48px; }
   .portfolio-label {
     font-family: 'JetBrains Mono', monospace;
@@ -226,7 +177,6 @@
     font-size: 14px;
   }
 
-  /* --- CARDS GRID --- */
   .cards-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -293,7 +243,6 @@
   }
   .icon-btn:hover { transform: rotate(180deg); color: var(--ink); }
 
-  /* --- SECTION HEADERS --- */
   .section-header {
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
@@ -303,7 +252,6 @@
     font-weight: 600;
   }
 
-  /* --- PROJECTIONS --- */
   .projections-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -349,7 +297,6 @@
     max-width: 680px;
   }
 
-  /* --- DEPOSITS --- */
   .deposit-log { background: var(--card); border: 2px solid var(--ink); padding: 24px; }
   .deposit-intro { font-style: italic; color: var(--muted); font-size: 13px; margin-bottom: 16px; }
   .deposit-form {
@@ -419,7 +366,6 @@
     font-size: 13px;
   }
 
-  /* --- TEXTAREA --- */
   textarea.notes {
     width: 100%;
     padding: 16px;
@@ -434,7 +380,6 @@
   }
   textarea.notes:focus { border-color: var(--accent); }
 
-  /* --- FOOTER --- */
   footer {
     padding-top: 32px;
     border-top: 2px solid var(--ink);
@@ -455,7 +400,6 @@
     color: var(--muted);
   }
 
-  /* --- LOADING --- */
   .loading {
     min-height: 100vh;
     display: flex;
@@ -463,74 +407,46 @@
     justify-content: center;
     font-family: 'JetBrains Mono', monospace;
     color: var(--ink);
-  }
-
-  /* --- UTILITY --- */
-  .mb-2 { margin-bottom: 8px; }
-  .mb-4 { margin-bottom: 16px; }
-  .mb-6 { margin-bottom: 24px; }
-  .mb-8 { margin-bottom: 32px; }
-  .mb-12 { margin-bottom: 48px; }
-  .mt-4 { margin-top: 16px; }
-  .mt-6 { margin-top: 24px; }
-  .text-center { text-align: center; }
-  .hidden { display: none !important; }
-
-  .tab-row { display: flex; gap: 4px; margin-bottom: 20px; }
-  .tab {
-    padding: 8px 16px;
-    border: 2px solid var(--ink);
-    background: transparent;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    text-transform: uppercase;
+    font-size: 14px;
     letter-spacing: 0.15em;
-    cursor: pointer;
-    font-weight: 600;
   }
-  .tab.active { background: var(--ink); color: var(--bg); }
 
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+    vertical-align: middle;
+  }
+  .status-dot.offline { background: var(--danger); animation: none; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .mb-12 { margin-bottom: 48px; }
+  .hidden { display: none !important; }
   .danger-text { color: var(--danger); font-style: italic; font-size: 13px; }
-
-  /* SVG icon sizing */
   svg.icon { flex-shrink: 0; }
 </style>
 </head>
 <body>
 
-<!-- LOCK SCREEN -->
-<div id="lock-screen" class="lock-screen">
-  <div class="lock-inner">
-    <div class="text-center mb-8">
-      <div class="lock-badge">
-        <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <span id="lock-badge-text">Restricted</span>
-      </div>
-    </div>
-    <h1 class="lock-title">THE<br>FUND<span class="dot">.</span></h1>
-    <p class="lock-sub">A family ledger, circa 2028.</p>
-    <div class="lock-form">
-      <div id="lock-setup-intro" class="hidden" style="padding: 12px; border: 2px solid var(--accent); background: var(--card); font-size: 13px; margin-bottom: 8px;">
-        <strong class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent);">First time setup</strong>
-        <p style="margin-top: 6px; font-style: italic; color: var(--muted);">Choose a password. Share it with your brother and cousin — they'll need it to open this dashboard.</p>
-      </div>
-      <input type="password" id="pw-input" class="input" placeholder="enter the password">
-      <input type="password" id="pw-confirm" class="input hidden" placeholder="confirm password">
-      <button id="pw-submit" class="btn-primary">Enter →</button>
-      <p id="pw-error" class="danger-text hidden"></p>
-    </div>
-  </div>
+<div id="loading" class="loading">
+  CONNECTING TO LEDGER...
 </div>
 
-<!-- MAIN DASHBOARD -->
 <div id="dashboard" class="hidden">
   <div class="container">
     <header>
       <div>
         <div class="header-meta">
-          <span>Ledger №1</span>
+          <span><span id="status-dot" class="status-dot"></span><span id="status-text">Live</span></span>
           <span>•</span>
-          <span>Est. 2026</span>
+          <span>Ledger №1</span>
           <span>•</span>
           <span style="display:inline-flex;align-items:center;gap:4px;">
             <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -556,7 +472,6 @@
     </section>
 
     <section class="cards-grid">
-      <!-- WEALTHFRONT CARD -->
       <div class="card">
         <div class="card-header">
           <div class="card-title">
@@ -583,7 +498,6 @@
         </div>
       </div>
 
-      <!-- ZEC CARD -->
       <div class="card">
         <div class="card-header">
           <div class="card-title">
@@ -607,7 +521,6 @@
       </div>
     </section>
 
-    <!-- PROJECTIONS -->
     <section class="mb-12">
       <h2 class="section-header">━━━ Projections (Cash Account only)</h2>
       <div class="projections-grid">
@@ -632,7 +545,6 @@
       </p>
     </section>
 
-    <!-- DEPOSITS -->
     <section class="mb-12">
       <h2 class="section-header">━━━ Extra Deposits</h2>
       <div class="deposit-log">
@@ -649,30 +561,46 @@
       </div>
     </section>
 
-    <!-- NOTES -->
     <section class="mb-12">
       <h2 class="section-header">━━━ Shared Notes</h2>
       <textarea id="notes" class="notes" placeholder="anything to share with the group — goals, ideas, reminders..." rows="5"></textarea>
     </section>
 
     <footer>
-      <p class="footer-text">Shared state · visible to all three contributors</p>
+      <p class="footer-text">Shared state · synced live across all three of you</p>
       <p class="footer-quote">"The best time to plant a tree was 20 years ago. The second best time is now."</p>
     </footer>
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, remove, push, child, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ============ FIREBASE ============
+const firebaseConfig = {
+  apiKey: "AIzaSyCEiyFvZDuXsNmFakMuS0W0bRfqz_dlB1s",
+  authDomain: "wealthfront-1dc9e.firebaseapp.com",
+  databaseURL: "https://wealthfront-1dc9e-default-rtdb.firebaseio.com",
+  projectId: "wealthfront-1dc9e",
+  storageBucket: "wealthfront-1dc9e.firebasestorage.app",
+  messagingSenderId: "107942216192",
+  appId: "1:107942216192:web:894160e64b46c582180ee5",
+  measurementId: "G-G0Y59T0LTE"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const stateRef = ref(db, "fund/state");
+const depositsRef = ref(db, "fund/deposits");
+
 // ============ CONFIG ============
-const STORAGE_PW_KEY = "dashboard:password:v1";
-const STORAGE_STATE_KEY = "dashboard:state:v1";
 const CASHOUT_DATE = new Date("2028-09-29T00:00:00");
 const DEFAULTS = {
   currentBalance: 3106.78,
   balanceUpdatedAt: new Date().toISOString(),
   apy: 0.033,
   weeklyContribution: 24,
-  deposits: [],
   notes: "",
 };
 const ZEC_AMOUNT = 1;
@@ -680,13 +608,16 @@ const ZEC_COST_BASIS = 280;
 
 // ============ STATE ============
 let state = { ...DEFAULTS };
+let deposits = {};
 let zecPrice = null;
 let zecErr = false;
+let initialized = false;
 
 // ============ HELPERS ============
 const fmt = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 const fmtShort = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 const dateStr = (d) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const escapeHtml = (str) => { const d = document.createElement("div"); d.textContent = str; return d.innerHTML; };
 
 function projectBalance(startBalance, startDate, endDate, weekly, apy) {
   const start = new Date(startDate);
@@ -703,150 +634,131 @@ function projectBalance(startBalance, startDate, endDate, weekly, apy) {
   return balance;
 }
 
-// ============ STORAGE ============
-async function storageGet(key) {
-  try {
-    const r = await window.storage.get(key, true);
-    return r?.value ?? null;
-  } catch { return null; }
-}
-async function storageSet(key, value) {
-  try {
-    await window.storage.set(key, value, true);
-    return true;
-  } catch (e) { console.error("storage set failed", e); return false; }
+function setStatus(online) {
+  document.getElementById("status-dot").classList.toggle("offline", !online);
+  document.getElementById("status-text").textContent = online ? "Live" : "Offline";
 }
 
-// ============ PASSWORD FLOW ============
-async function initLockScreen() {
-  const existing = await storageGet(STORAGE_PW_KEY);
-  const pwInput = document.getElementById("pw-input");
-  const pwConfirm = document.getElementById("pw-confirm");
-  const pwSubmit = document.getElementById("pw-submit");
-  const pwError = document.getElementById("pw-error");
-  const setupIntro = document.getElementById("lock-setup-intro");
-  const badgeText = document.getElementById("lock-badge-text");
-
-  const isSetup = !existing;
-
-  if (isSetup) {
-    setupIntro.classList.remove("hidden");
-    pwConfirm.classList.remove("hidden");
-    pwInput.placeholder = "create a password";
-    pwSubmit.textContent = "Set Password →";
-    badgeText.textContent = "Setup";
+async function saveState(partial) {
+  try {
+    await update(stateRef, partial);
+    setStatus(true);
+  } catch (e) {
+    console.error("save failed", e);
+    setStatus(false);
   }
+}
 
-  const showError = (msg) => {
-    pwError.textContent = msg;
-    pwError.classList.remove("hidden");
-    pwInput.classList.add("input-error");
-    if (!pwConfirm.classList.contains("hidden")) pwConfirm.classList.add("input-error");
-  };
-  const clearError = () => {
-    pwError.classList.add("hidden");
-    pwInput.classList.remove("input-error");
-    pwConfirm.classList.remove("input-error");
-  };
+async function addDepositFB(date, amount, note) {
+  try {
+    const newRef = push(depositsRef);
+    await set(newRef, { date, amount, note: note || "", createdAt: Date.now() });
+    setStatus(true);
+  } catch (e) {
+    console.error("add deposit failed", e);
+    setStatus(false);
+  }
+}
 
-  pwInput.addEventListener("input", clearError);
-  pwConfirm.addEventListener("input", clearError);
+async function removeDepositFB(id) {
+  try {
+    await remove(child(depositsRef, id));
+    setStatus(true);
+  } catch (e) {
+    console.error("remove deposit failed", e);
+    setStatus(false);
+  }
+}
 
-  const handleSubmit = async () => {
-    const pw = pwInput.value;
-    if (isSetup) {
-      if (pw.length < 4) return showError("Password must be at least 4 characters.");
-      if (pw !== pwConfirm.value) return showError("Passwords don't match.");
-      const ok = await storageSet(STORAGE_PW_KEY, pw);
-      if (!ok) return showError("Couldn't save password. Try again.");
-      unlock();
-    } else {
-      if (pw === existing) unlock();
-      else { showError("Wrong password."); pwInput.value = ""; }
+// ============ INIT ============
+async function init() {
+  try {
+    const snap = await get(stateRef);
+    if (!snap.exists()) {
+      await set(stateRef, DEFAULTS);
     }
-  };
-
-  pwSubmit.addEventListener("click", handleSubmit);
-  [pwInput, pwConfirm].forEach(el => el.addEventListener("keydown", e => {
-    if (e.key === "Enter") handleSubmit();
-  }));
-  pwInput.focus();
-}
-
-function unlock() {
-  document.getElementById("lock-screen").classList.add("hidden");
-  document.getElementById("dashboard").classList.remove("hidden");
-  initDashboard();
-}
-
-// ============ DASHBOARD ============
-async function initDashboard() {
-  // Load state
-  const saved = await storageGet(STORAGE_STATE_KEY);
-  if (saved) {
-    try { state = { ...DEFAULTS, ...JSON.parse(saved) }; }
-    catch { state = { ...DEFAULTS }; }
+  } catch (e) {
+    console.error("init failed", e);
+    setStatus(false);
   }
 
-  // Set default date for deposit form
-  document.getElementById("dep-date").value = new Date().toISOString().slice(0, 10);
-
-  // Bind inputs
-  const balInput = document.getElementById("input-balance");
-  const wkInput = document.getElementById("input-weekly");
-  const apyInput = document.getElementById("input-apy");
-  balInput.value = state.currentBalance;
-  wkInput.value = state.weeklyContribution;
-  apyInput.value = state.apy;
-
-  balInput.addEventListener("blur", () => {
-    const v = parseFloat(balInput.value);
-    if (!isNaN(v)) saveState({ ...state, currentBalance: v, balanceUpdatedAt: new Date().toISOString() });
+  onValue(stateRef, (snap) => {
+    const val = snap.val();
+    if (val) {
+      state = { ...DEFAULTS, ...val };
+      render();
+      syncInputs();
+      setStatus(true);
+    }
+    if (!initialized) {
+      initialized = true;
+      document.getElementById("loading").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+    }
+  }, (err) => {
+    console.error("state read failed", err);
+    setStatus(false);
+    if (!initialized) {
+      initialized = true;
+      document.getElementById("loading").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+    }
   });
-  wkInput.addEventListener("blur", () => {
-    const v = parseFloat(wkInput.value);
-    if (!isNaN(v)) saveState({ ...state, weeklyContribution: v });
-  });
-  apyInput.addEventListener("blur", () => {
-    const v = parseFloat(apyInput.value);
-    if (!isNaN(v)) saveState({ ...state, apy: v });
+
+  onValue(depositsRef, (snap) => {
+    deposits = snap.val() || {};
+    renderDeposits();
   });
 
-  // Notes
-  const notesEl = document.getElementById("notes");
-  notesEl.value = state.notes;
-  notesEl.addEventListener("blur", () => saveState({ ...state, notes: notesEl.value }));
-
-  // Deposits
-  document.getElementById("dep-add").addEventListener("click", addDeposit);
-
-  // ZEC refresh
-  document.getElementById("refresh-zec").addEventListener("click", fetchZec);
-
-  // Initial render
-  render();
+  bindInputs();
   fetchZec();
 }
 
-async function saveState(next) {
-  state = next;
-  await storageSet(STORAGE_STATE_KEY, JSON.stringify(state));
-  render();
+function syncInputs() {
+  const balInput = document.getElementById("input-balance");
+  const wkInput = document.getElementById("input-weekly");
+  const apyInput = document.getElementById("input-apy");
+  const notesEl = document.getElementById("notes");
+
+  if (document.activeElement !== balInput) balInput.value = state.currentBalance;
+  if (document.activeElement !== wkInput) wkInput.value = state.weeklyContribution;
+  if (document.activeElement !== apyInput) apyInput.value = state.apy;
+  if (document.activeElement !== notesEl) notesEl.value = state.notes;
 }
 
-function addDeposit() {
-  const date = document.getElementById("dep-date").value;
-  const amount = parseFloat(document.getElementById("dep-amount").value);
-  const note = document.getElementById("dep-note").value;
-  if (isNaN(amount) || amount === 0) return;
-  const dep = { id: Date.now().toString(), date, amount, note };
-  saveState({ ...state, deposits: [dep, ...state.deposits] });
-  document.getElementById("dep-amount").value = "";
-  document.getElementById("dep-note").value = "";
-}
+function bindInputs() {
+  document.getElementById("dep-date").value = new Date().toISOString().slice(0, 10);
 
-function removeDeposit(id) {
-  saveState({ ...state, deposits: state.deposits.filter(d => d.id !== id) });
+  const balInput = document.getElementById("input-balance");
+  const wkInput = document.getElementById("input-weekly");
+  const apyInput = document.getElementById("input-apy");
+  const notesEl = document.getElementById("notes");
+
+  balInput.addEventListener("blur", () => {
+    const v = parseFloat(balInput.value);
+    if (!isNaN(v)) saveState({ currentBalance: v, balanceUpdatedAt: new Date().toISOString() });
+  });
+  wkInput.addEventListener("blur", () => {
+    const v = parseFloat(wkInput.value);
+    if (!isNaN(v)) saveState({ weeklyContribution: v });
+  });
+  apyInput.addEventListener("blur", () => {
+    const v = parseFloat(apyInput.value);
+    if (!isNaN(v)) saveState({ apy: v });
+  });
+  notesEl.addEventListener("blur", () => saveState({ notes: notesEl.value }));
+
+  document.getElementById("dep-add").addEventListener("click", () => {
+    const date = document.getElementById("dep-date").value;
+    const amount = parseFloat(document.getElementById("dep-amount").value);
+    const note = document.getElementById("dep-note").value;
+    if (isNaN(amount) || amount === 0) return;
+    addDepositFB(date, amount, note);
+    document.getElementById("dep-amount").value = "";
+    document.getElementById("dep-note").value = "";
+  });
+
+  document.getElementById("refresh-zec").addEventListener("click", fetchZec);
 }
 
 async function fetchZec() {
@@ -891,69 +803,62 @@ async function fetchZec() {
 }
 
 function render() {
-  // Cash
   document.getElementById("cash-balance").textContent = fmt(state.currentBalance);
   document.getElementById("cash-updated").textContent = `last updated ${dateStr(state.balanceUpdatedAt)}`;
   document.getElementById("apy-badge").textContent = `${(state.apy * 100).toFixed(2)}% APY`;
 
-  // Total portfolio
   const zecValue = zecErr || zecPrice === null ? ZEC_COST_BASIS : zecPrice * ZEC_AMOUNT;
   const total = state.currentBalance + zecValue;
   document.getElementById("portfolio-total").textContent = fmt(total);
 
-  // Countdown
   const days = Math.max(0, Math.ceil((CASHOUT_DATE - new Date()) / (1000 * 60 * 60 * 24)));
   const weeks = Math.ceil(days / 7);
   document.getElementById("countdown-days").textContent = days;
   document.getElementById("countdown-sub").textContent = `days · ${weeks} weeks`;
 
-  // Projections
   const start = new Date(state.balanceUpdatedAt);
   document.getElementById("proj-2026").textContent = fmtShort(projectBalance(state.currentBalance, start, new Date("2026-12-31"), state.weeklyContribution, state.apy));
   document.getElementById("proj-2027").textContent = fmtShort(projectBalance(state.currentBalance, start, new Date("2027-12-31"), state.weeklyContribution, state.apy));
   document.getElementById("proj-cashout").textContent = fmtShort(projectBalance(state.currentBalance, start, CASHOUT_DATE, state.weeklyContribution, state.apy));
 
-  // Projection disclaimer
   document.getElementById("proj-disclaimer").textContent = `Assumes ${fmt(state.weeklyContribution)}/week every Sunday and a steady ${(state.apy*100).toFixed(2)}% APY with daily accrual. Real rates change — Wealthfront's APY follows the federal funds rate. ZCash value isn't included here because crypto projections are basically fiction.`;
+}
 
-  // Deposits
+function renderDeposits() {
   const listEl = document.getElementById("dep-list");
   const summaryEl = document.getElementById("dep-summary");
   const emptyEl = document.getElementById("dep-empty");
 
-  if (state.deposits.length === 0) {
+  const entries = Object.entries(deposits).map(([id, d]) => ({ id, ...d }));
+  entries.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+  if (entries.length === 0) {
     listEl.innerHTML = "";
     summaryEl.classList.add("hidden");
     emptyEl.classList.remove("hidden");
   } else {
     emptyEl.classList.add("hidden");
     summaryEl.classList.remove("hidden");
-    const total = state.deposits.reduce((s, d) => s + Number(d.amount), 0);
-    summaryEl.textContent = `${state.deposits.length} entries · ${fmt(total)} total`;
-    listEl.innerHTML = state.deposits.map(d => `
+    const total = entries.reduce((s, d) => s + Number(d.amount), 0);
+    summaryEl.textContent = `${entries.length} entries · ${fmt(total)} total`;
+    listEl.innerHTML = entries.map(d => `
       <div class="deposit-row">
         <div class="deposit-date">${dateStr(d.date)}</div>
         <div class="deposit-amount" style="color: ${d.amount >= 0 ? 'var(--ink)' : 'var(--danger)'};">${d.amount >= 0 ? "+" : ""}${fmt(d.amount)}</div>
         <div class="deposit-note">${d.note ? escapeHtml(d.note) : "—"}</div>
-        <button class="delete-btn" onclick="removeDeposit('${d.id}')" title="delete">
+        <button class="delete-btn" data-id="${d.id}" title="delete">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         </button>
       </div>
     `).join("");
+
+    listEl.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", () => removeDepositFB(btn.dataset.id));
+    });
   }
 }
 
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-// Expose for inline onclick
-window.removeDeposit = removeDeposit;
-
-// ============ BOOT ============
-initLockScreen();
+init();
 </script>
 
 </body>
