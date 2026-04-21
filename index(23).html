@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Fund · A Family Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4efe6;
+    --card: #faf6ed;
+    --ink: #1a1a1a;
+    --muted: #6b6b63;
+    --accent: #2f6f3e;
+    --danger: #c53030;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); min-height: 100vh; }
+  body {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+  /* Grain overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .serif { font-family: 'Fraunces', serif; }
+  .italic { font-style: italic; }
+
+  input, textarea, button {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    border: none;
+    background: none;
+  }
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.6; }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.3); cursor: pointer; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; position: relative; }
+  @media (min-width: 768px) { .container { padding: 56px 32px 80px; } }
+
+  .border-ink { border: 2px solid var(--ink); }
+  .border-b-ink { border-bottom: 2px solid var(--ink); }
+  .border-t-ink { border-top: 2px solid var(--ink); }
+  .card { background: var(--card); border: 2px solid var(--ink); padding: 24px; }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--accent);
+    transition: transform 0.15s ease;
+  }
+  .btn-primary:hover { transform: translate(4px, -4px); box-shadow: 0 0 0 var(--accent); }
+  .btn-primary:active { transform: translate(0, 0); box-shadow: 2px 2px 0 var(--accent); }
+  .btn-small { padding: 8px 12px; font-size: 12px; box-shadow: 3px 3px 0 var(--accent); }
+  .btn-small:hover { transform: translate(3px, -3px); }
+
+  .input {
+    padding: 10px 12px;
+    border: 2px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .input:focus { border-color: var(--accent); }
+  .input-error { border-color: var(--danger); }
+
+  .label-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* --- LOCK SCREEN --- */
+  .lock-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .lock-inner { max-width: 440px; width: 100%; }
+  .lock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    border: 2px solid var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+  }
+  .lock-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(48px, 10vw, 72px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    margin: 28px 0 8px;
+  }
+  .lock-title .dot { color: var(--accent); }
+  .lock-sub {
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-size: 15px;
+  }
+  .lock-form { display: flex; flex-direction: column; gap: 12px; }
+
+  /* --- HEADER --- */
+  header {
+    padding-bottom: 24px;
+    margin-bottom: 48px;
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .header-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  h1.title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(44px, 8vw, 80px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.88;
+  }
+  h1.title .dot { color: var(--accent); }
+  .tagline {
+    margin-top: 12px;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 420px;
+  }
+  .countdown-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 4px;
+    text-align: right;
+  }
+  .countdown-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    line-height: 1;
+    text-align: right;
+  }
+  .countdown-sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  /* --- PORTFOLIO --- */
+  .portfolio-section { margin-bottom: 48px; }
+  .portfolio-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .portfolio-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    display: inline-block;
+    margin-right: 16px;
+  }
+  .portfolio-note {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* --- CARDS GRID --- */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  @media (min-width: 768px) { .cards-grid { grid-template-columns: 1fr 1fr; } }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+  }
+  .card-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+  .card-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .card-subtext {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .card-gain {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .gain-pos { color: var(--accent); }
+  .gain-neg { color: var(--danger); }
+
+  .config-group { display: flex; flex-direction: column; gap: 12px; }
+
+  .icon-btn {
+    padding: 4px;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    transition: transform 0.4s;
+  }
+  .icon-btn:hover { transform: rotate(180deg); color: var(--ink); }
+
+  /* --- SECTION HEADERS --- */
+  .section-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+
+  /* --- PROJECTIONS --- */
+  .projections-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media (min-width: 768px) { .projections-grid { grid-template-columns: 1fr 1fr 1fr; } }
+  .projection-card {
+    border: 2px solid var(--ink);
+    background: var(--card);
+    padding: 24px;
+  }
+  .projection-card.highlight {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  .proj-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    opacity: 0.7;
+    margin-bottom: 12px;
+  }
+  .proj-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .proj-sub {
+    font-style: italic;
+    font-size: 12px;
+    opacity: 0.7;
+  }
+  .projections-disclaimer {
+    margin-top: 16px;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+    max-width: 680px;
+  }
+
+  /* --- DEPOSITS --- */
+  .deposit-log { background: var(--card); border: 2px solid var(--ink); padding: 24px; }
+  .deposit-intro { font-style: italic; color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+  .deposit-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  @media (min-width: 768px) {
+    .deposit-form { grid-template-columns: 1fr 1fr 1.5fr auto; }
+  }
+  .deposit-summary {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--muted);
+  }
+  .deposit-list { max-height: 260px; overflow-y: auto; }
+  .deposit-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    font-size: 13px;
+  }
+  .deposit-date {
+    width: 110px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .deposit-amount {
+    width: 90px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .deposit-note {
+    flex: 1;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .delete-btn {
+    opacity: 0.4;
+    cursor: pointer;
+    color: var(--danger);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+  }
+  .delete-btn:hover { opacity: 1; }
+  .empty-state {
+    padding: 16px 0;
+    text-align: center;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* --- TEXTAREA --- */
+  textarea.notes {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--ink);
+    background: var(--card);
+    color: var(--ink);
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    outline: none;
+    resize: vertical;
+    min-height: 120px;
+  }
+  textarea.notes:focus { border-color: var(--accent); }
+
+  /* --- FOOTER --- */
+  footer {
+    padding-top: 32px;
+    border-top: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .footer-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .footer-quote {
+    font-style: italic;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* --- LOADING --- */
+  .loading {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink);
+  }
+
+  /* --- UTILITY --- */
+  .mb-2 { margin-bottom: 8px; }
+  .mb-4 { margin-bottom: 16px; }
+  .mb-6 { margin-bottom: 24px; }
+  .mb-8 { margin-bottom: 32px; }
+  .mb-12 { margin-bottom: 48px; }
+  .mt-4 { margin-top: 16px; }
+  .mt-6 { margin-top: 24px; }
+  .text-center { text-align: center; }
+  .hidden { display: none !important; }
+
+  .tab-row { display: flex; gap: 4px; margin-bottom: 20px; }
+  .tab {
+    padding: 8px 16px;
+    border: 2px solid var(--ink);
+    background: transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .tab.active { background: var(--ink); color: var(--bg); }
+
+  .danger-text { color: var(--danger); font-style: italic; font-size: 13px; }
+
+  /* SVG icon sizing */
+  svg.icon { flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen" class="lock-screen">
+  <div class="lock-inner">
+    <div class="text-center mb-8">
+      <div class="lock-badge">
+        <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span id="lock-badge-text">Restricted</span>
+      </div>
+    </div>
+    <h1 class="lock-title">THE<br>FUND<span class="dot">.</span></h1>
+    <p class="lock-sub">A family ledger, circa 2028.</p>
+    <div class="lock-form">
+      <div id="lock-setup-intro" class="hidden" style="padding: 12px; border: 2px solid var(--accent); background: var(--card); font-size: 13px; margin-bottom: 8px;">
+        <strong class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent);">First time setup</strong>
+        <p style="margin-top: 6px; font-style: italic; color: var(--muted);">Choose a password. Share it with your brother and cousin — they'll need it to open this dashboard.</p>
+      </div>
+      <input type="password" id="pw-input" class="input" placeholder="enter the password">
+      <input type="password" id="pw-confirm" class="input hidden" placeholder="confirm password">
+      <button id="pw-submit" class="btn-primary">Enter →</button>
+      <p id="pw-error" class="danger-text hidden"></p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="dashboard" class="hidden">
+  <div class="container">
+    <header>
+      <div>
+        <div class="header-meta">
+          <span>Ledger №1</span>
+          <span>•</span>
+          <span>Est. 2026</span>
+          <span>•</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;">
+            <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            3 contributors
+          </span>
+        </div>
+        <h1 class="title">THE FUND<span class="dot">.</span></h1>
+        <p class="tagline">Weekly deposits, patient compounding. Target cash-out: September 29, 2028.</p>
+      </div>
+      <div>
+        <div class="countdown-label">Countdown</div>
+        <div class="countdown-value" id="countdown-days">—</div>
+        <div class="countdown-sub" id="countdown-sub">days</div>
+      </div>
+    </header>
+
+    <section class="portfolio-section">
+      <div class="portfolio-label">Total Portfolio Value</div>
+      <div>
+        <span class="portfolio-value" id="portfolio-total">$0.00</span>
+        <span class="portfolio-note">cash + zec, combined</span>
+      </div>
+    </section>
+
+    <section class="cards-grid">
+      <!-- WEALTHFRONT CARD -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Wealthfront Cash
+          </div>
+          <div class="card-badge" id="apy-badge">3.30% APY</div>
+        </div>
+        <div class="card-value" id="cash-balance">$0.00</div>
+        <div class="card-subtext" id="cash-updated">last updated —</div>
+        <div class="config-group">
+          <div>
+            <label class="label-mono">Update balance (from Wealthfront app)</label>
+            <input type="number" step="0.01" id="input-balance" class="input">
+          </div>
+          <div>
+            <label class="label-mono">Weekly contribution</label>
+            <input type="number" step="1" id="input-weekly" class="input">
+          </div>
+          <div>
+            <label class="label-mono">APY (decimal, e.g. 0.033)</label>
+            <input type="number" step="0.001" id="input-apy" class="input">
+          </div>
+        </div>
+      </div>
+
+      <!-- ZEC CARD -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>
+            ZCash (1 ZEC)
+          </div>
+          <button class="icon-btn" id="refresh-zec" title="refresh price">
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+          </button>
+        </div>
+        <div class="card-value" id="zec-value">fetching...</div>
+        <div id="zec-gain-row" class="card-gain hidden">
+          <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          <span id="zec-gain-text">—</span>
+        </div>
+        <div class="card-subtext" id="zec-subtext">—</div>
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--muted);">
+          <div class="label-mono">note</div>
+          <p style="font-size: 12px; font-style: italic; color: var(--muted);">Price from CoinGecko. Crypto is volatile — this value can swing wildly day to day.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTIONS -->
+    <section class="mb-12">
+      <h2 class="section-header">━━━ Projections (Cash Account only)</h2>
+      <div class="projections-grid">
+        <div class="projection-card">
+          <div class="proj-label">By Dec 31, 2026</div>
+          <div class="proj-value" id="proj-2026">—</div>
+          <div class="proj-sub">end of year one</div>
+        </div>
+        <div class="projection-card">
+          <div class="proj-label">By Dec 31, 2027</div>
+          <div class="proj-value" id="proj-2027">—</div>
+          <div class="proj-sub">end of year two</div>
+        </div>
+        <div class="projection-card highlight">
+          <div class="proj-label">By Sep 29, 2028</div>
+          <div class="proj-value" id="proj-cashout">—</div>
+          <div class="proj-sub">cash-out day</div>
+        </div>
+      </div>
+      <p class="projections-disclaimer" id="proj-disclaimer">
+        Assumes weekly contributions every Sunday at the current APY with daily accrual. Real rates change — Wealthfront's APY follows the federal funds rate. ZCash value isn't included here because crypto projections are basically fiction.
+      </p>
+    </section>
+
+    <!-- DEPOSITS -->
+    <section class="mb-12">
+      <h2 class="section-header">━━━ Extra Deposits</h2>
+      <div class="deposit-log">
+        <p class="deposit-intro">Log any extra deposits beyond the weekly $24 (bonuses, birthday money, etc.) or track when you bump up contributions.</p>
+        <div class="deposit-form">
+          <input type="date" id="dep-date" class="input">
+          <input type="number" step="0.01" id="dep-amount" class="input" placeholder="amount">
+          <input type="text" id="dep-note" class="input" placeholder="note (optional)" style="font-family: 'Fraunces', serif; font-style: italic;">
+          <button id="dep-add" class="btn-primary btn-small">+ Log</button>
+        </div>
+        <div id="dep-summary" class="deposit-summary hidden"></div>
+        <div id="dep-list" class="deposit-list"></div>
+        <p id="dep-empty" class="empty-state">No extra deposits logged yet.</p>
+      </div>
+    </section>
+
+    <!-- NOTES -->
+    <section class="mb-12">
+      <h2 class="section-header">━━━ Shared Notes</h2>
+      <textarea id="notes" class="notes" placeholder="anything to share with the group — goals, ideas, reminders..." rows="5"></textarea>
+    </section>
+
+    <footer>
+      <p class="footer-text">Shared state · visible to all three contributors</p>
+      <p class="footer-quote">"The best time to plant a tree was 20 years ago. The second best time is now."</p>
+    </footer>
+  </div>
+</div>
+
+<script>
+// ============ CONFIG ============
+const STORAGE_PW_KEY = "dashboard:password:v1";
+const STORAGE_STATE_KEY = "dashboard:state:v1";
+const CASHOUT_DATE = new Date("2028-09-29T00:00:00");
+const DEFAULTS = {
+  currentBalance: 3106.78,
+  balanceUpdatedAt: new Date().toISOString(),
+  apy: 0.033,
+  weeklyContribution: 24,
+  deposits: [],
+  notes: "",
+};
+const ZEC_AMOUNT = 1;
+const ZEC_COST_BASIS = 280;
+
+// ============ STATE ============
+let state = { ...DEFAULTS };
+let zecPrice = null;
+let zecErr = false;
+
+// ============ HELPERS ============
+const fmt = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+const fmtShort = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+const dateStr = (d) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+function projectBalance(startBalance, startDate, endDate, weekly, apy) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (end <= start) return startBalance;
+  const dailyRate = apy / 365;
+  let balance = startBalance;
+  const cur = new Date(start);
+  while (cur < end) {
+    balance += balance * dailyRate;
+    if (cur.getDay() === 0) balance += weekly;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return balance;
+}
+
+// ============ STORAGE ============
+async function storageGet(key) {
+  try {
+    const r = await window.storage.get(key, true);
+    return r?.value ?? null;
+  } catch { return null; }
+}
+async function storageSet(key, value) {
+  try {
+    await window.storage.set(key, value, true);
+    return true;
+  } catch (e) { console.error("storage set failed", e); return false; }
+}
+
+// ============ PASSWORD FLOW ============
+async function initLockScreen() {
+  const existing = await storageGet(STORAGE_PW_KEY);
+  const pwInput = document.getElementById("pw-input");
+  const pwConfirm = document.getElementById("pw-confirm");
+  const pwSubmit = document.getElementById("pw-submit");
+  const pwError = document.getElementById("pw-error");
+  const setupIntro = document.getElementById("lock-setup-intro");
+  const badgeText = document.getElementById("lock-badge-text");
+
+  const isSetup = !existing;
+
+  if (isSetup) {
+    setupIntro.classList.remove("hidden");
+    pwConfirm.classList.remove("hidden");
+    pwInput.placeholder = "create a password";
+    pwSubmit.textContent = "Set Password →";
+    badgeText.textContent = "Setup";
+  }
+
+  const showError = (msg) => {
+    pwError.textContent = msg;
+    pwError.classList.remove("hidden");
+    pwInput.classList.add("input-error");
+    if (!pwConfirm.classList.contains("hidden")) pwConfirm.classList.add("input-error");
+  };
+  const clearError = () => {
+    pwError.classList.add("hidden");
+    pwInput.classList.remove("input-error");
+    pwConfirm.classList.remove("input-error");
+  };
+
+  pwInput.addEventListener("input", clearError);
+  pwConfirm.addEventListener("input", clearError);
+
+  const handleSubmit = async () => {
+    const pw = pwInput.value;
+    if (isSetup) {
+      if (pw.length < 4) return showError("Password must be at least 4 characters.");
+      if (pw !== pwConfirm.value) return showError("Passwords don't match.");
+      const ok = await storageSet(STORAGE_PW_KEY, pw);
+      if (!ok) return showError("Couldn't save password. Try again.");
+      unlock();
+    } else {
+      if (pw === existing) unlock();
+      else { showError("Wrong password."); pwInput.value = ""; }
+    }
+  };
+
+  pwSubmit.addEventListener("click", handleSubmit);
+  [pwInput, pwConfirm].forEach(el => el.addEventListener("keydown", e => {
+    if (e.key === "Enter") handleSubmit();
+  }));
+  pwInput.focus();
+}
+
+function unlock() {
+  document.getElementById("lock-screen").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  initDashboard();
+}
+
+// ============ DASHBOARD ============
+async function initDashboard() {
+  // Load state
+  const saved = await storageGet(STORAGE_STATE_KEY);
+  if (saved) {
+    try { state = { ...DEFAULTS, ...JSON.parse(saved) }; }
+    catch { state = { ...DEFAULTS }; }
+  }
+
+  // Set default date for deposit form
+  document.getElementById("dep-date").value = new Date().toISOString().slice(0, 10);
+
+  // Bind inputs
+  const balInput = document.getElementById("input-balance");
+  const wkInput = document.getElementById("input-weekly");
+  const apyInput = document.getElementById("input-apy");
+  balInput.value = state.currentBalance;
+  wkInput.value = state.weeklyContribution;
+  apyInput.value = state.apy;
+
+  balInput.addEventListener("blur", () => {
+    const v = parseFloat(balInput.value);
+    if (!isNaN(v)) saveState({ ...state, currentBalance: v, balanceUpdatedAt: new Date().toISOString() });
+  });
+  wkInput.addEventListener("blur", () => {
+    const v = parseFloat(wkInput.value);
+    if (!isNaN(v)) saveState({ ...state, weeklyContribution: v });
+  });
+  apyInput.addEventListener("blur", () => {
+    const v = parseFloat(apyInput.value);
+    if (!isNaN(v)) saveState({ ...state, apy: v });
+  });
+
+  // Notes
+  const notesEl = document.getElementById("notes");
+  notesEl.value = state.notes;
+  notesEl.addEventListener("blur", () => saveState({ ...state, notes: notesEl.value }));
+
+  // Deposits
+  document.getElementById("dep-add").addEventListener("click", addDeposit);
+
+  // ZEC refresh
+  document.getElementById("refresh-zec").addEventListener("click", fetchZec);
+
+  // Initial render
+  render();
+  fetchZec();
+}
+
+async function saveState(next) {
+  state = next;
+  await storageSet(STORAGE_STATE_KEY, JSON.stringify(state));
+  render();
+}
+
+function addDeposit() {
+  const date = document.getElementById("dep-date").value;
+  const amount = parseFloat(document.getElementById("dep-amount").value);
+  const note = document.getElementById("dep-note").value;
+  if (isNaN(amount) || amount === 0) return;
+  const dep = { id: Date.now().toString(), date, amount, note };
+  saveState({ ...state, deposits: [dep, ...state.deposits] });
+  document.getElementById("dep-amount").value = "";
+  document.getElementById("dep-note").value = "";
+}
+
+function removeDeposit(id) {
+  saveState({ ...state, deposits: state.deposits.filter(d => d.id !== id) });
+}
+
+async function fetchZec() {
+  const valueEl = document.getElementById("zec-value");
+  const gainRow = document.getElementById("zec-gain-row");
+  const gainText = document.getElementById("zec-gain-text");
+  const subEl = document.getElementById("zec-subtext");
+
+  valueEl.textContent = "fetching...";
+  valueEl.style.color = "var(--muted)";
+
+  try {
+    const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=zcash&vs_currencies=usd");
+    const j = await r.json();
+    if (j?.zcash?.usd) {
+      zecPrice = j.zcash.usd;
+      zecErr = false;
+    } else {
+      zecErr = true;
+    }
+  } catch {
+    zecErr = true;
+  }
+
+  valueEl.style.color = "var(--ink)";
+
+  if (zecErr) {
+    valueEl.textContent = fmt(ZEC_COST_BASIS);
+    gainRow.classList.add("hidden");
+    subEl.innerHTML = '<span class="danger-text">couldn\'t fetch live price — showing cost basis</span>';
+  } else {
+    const zecValue = zecPrice * ZEC_AMOUNT;
+    const gain = zecValue - ZEC_COST_BASIS;
+    const gainPct = (gain / ZEC_COST_BASIS) * 100;
+    valueEl.textContent = fmt(zecValue);
+    gainRow.classList.remove("hidden");
+    gainRow.className = "card-gain " + (gain >= 0 ? "gain-pos" : "gain-neg");
+    gainText.textContent = `${gain >= 0 ? "+" : ""}${fmt(gain)} (${gainPct >= 0 ? "+" : ""}${gainPct.toFixed(1)}%)`;
+    subEl.textContent = `1 ZEC @ ${fmt(zecPrice)} · cost basis ${fmt(ZEC_COST_BASIS)}`;
+  }
+  render();
+}
+
+function render() {
+  // Cash
+  document.getElementById("cash-balance").textContent = fmt(state.currentBalance);
+  document.getElementById("cash-updated").textContent = `last updated ${dateStr(state.balanceUpdatedAt)}`;
+  document.getElementById("apy-badge").textContent = `${(state.apy * 100).toFixed(2)}% APY`;
+
+  // Total portfolio
+  const zecValue = zecErr || zecPrice === null ? ZEC_COST_BASIS : zecPrice * ZEC_AMOUNT;
+  const total = state.currentBalance + zecValue;
+  document.getElementById("portfolio-total").textContent = fmt(total);
+
+  // Countdown
+  const days = Math.max(0, Math.ceil((CASHOUT_DATE - new Date()) / (1000 * 60 * 60 * 24)));
+  const weeks = Math.ceil(days / 7);
+  document.getElementById("countdown-days").textContent = days;
+  document.getElementById("countdown-sub").textContent = `days · ${weeks} weeks`;
+
+  // Projections
+  const start = new Date(state.balanceUpdatedAt);
+  document.getElementById("proj-2026").textContent = fmtShort(projectBalance(state.currentBalance, start, new Date("2026-12-31"), state.weeklyContribution, state.apy));
+  document.getElementById("proj-2027").textContent = fmtShort(projectBalance(state.currentBalance, start, new Date("2027-12-31"), state.weeklyContribution, state.apy));
+  document.getElementById("proj-cashout").textContent = fmtShort(projectBalance(state.currentBalance, start, CASHOUT_DATE, state.weeklyContribution, state.apy));
+
+  // Projection disclaimer
+  document.getElementById("proj-disclaimer").textContent = `Assumes ${fmt(state.weeklyContribution)}/week every Sunday and a steady ${(state.apy*100).toFixed(2)}% APY with daily accrual. Real rates change — Wealthfront's APY follows the federal funds rate. ZCash value isn't included here because crypto projections are basically fiction.`;
+
+  // Deposits
+  const listEl = document.getElementById("dep-list");
+  const summaryEl = document.getElementById("dep-summary");
+  const emptyEl = document.getElementById("dep-empty");
+
+  if (state.deposits.length === 0) {
+    listEl.innerHTML = "";
+    summaryEl.classList.add("hidden");
+    emptyEl.classList.remove("hidden");
+  } else {
+    emptyEl.classList.add("hidden");
+    summaryEl.classList.remove("hidden");
+    const total = state.deposits.reduce((s, d) => s + Number(d.amount), 0);
+    summaryEl.textContent = `${state.deposits.length} entries · ${fmt(total)} total`;
+    listEl.innerHTML = state.deposits.map(d => `
+      <div class="deposit-row">
+        <div class="deposit-date">${dateStr(d.date)}</div>
+        <div class="deposit-amount" style="color: ${d.amount >= 0 ? 'var(--ink)' : 'var(--danger)'};">${d.amount >= 0 ? "+" : ""}${fmt(d.amount)}</div>
+        <div class="deposit-note">${d.note ? escapeHtml(d.note) : "—"}</div>
+        <button class="delete-btn" onclick="removeDeposit('${d.id}')" title="delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    `).join("");
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Expose for inline onclick
+window.removeDeposit = removeDeposit;
+
+// ============ BOOT ============
+initLockScreen();
+</script>
+
+</body>
+</html>
