@@ -380,6 +380,38 @@
   }
   textarea.notes:focus { border-color: var(--accent); }
 
+  .notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 24px;
+  }
+  .notes-actions {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+  .notes-display {
+    padding: 20px 24px;
+    border: 2px solid var(--ink);
+    background: var(--card);
+    min-height: 80px;
+  }
+  .notes-text {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .notes-text.empty {
+    color: var(--muted);
+    font-style: italic;
+  }
+  .link-btn-accent { color: var(--accent); font-weight: 600; }
+
   footer {
     padding-top: 32px;
     border-top: 2px solid var(--ink);
@@ -431,12 +463,172 @@
   .hidden { display: none !important; }
   .danger-text { color: var(--danger); font-style: italic; font-size: 13px; }
   svg.icon { flex-shrink: 0; }
+
+  /* --- LOCK SCREEN --- */
+  .lock-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .lock-inner { max-width: 440px; width: 100%; }
+  .lock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    border: 2px solid var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+  }
+  .lock-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(48px, 10vw, 72px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    margin-bottom: 8px;
+  }
+  .lock-title .dot { color: var(--accent); }
+  .lock-sub {
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-size: 15px;
+  }
+  .lock-form { display: flex; flex-direction: column; gap: 12px; }
+  .input-error { border-color: var(--danger) !important; }
+
+  .setup-intro {
+    padding: 12px;
+    border: 2px solid var(--accent);
+    background: var(--card);
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .setup-intro-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+  }
+  .setup-intro-text {
+    margin-top: 6px;
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  /* --- MODAL --- */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 26, 0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal {
+    background: var(--bg);
+    border: 2px solid var(--ink);
+    padding: 32px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 8px 8px 0 var(--accent);
+  }
+  .modal-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .modal-sub {
+    font-style: italic;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .btn-secondary {
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border: 2px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn-secondary:hover { background: var(--ink); color: var(--bg); }
+
+  .link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .link-btn:hover { color: var(--accent); }
 </style>
 </head>
 <body>
 
 <div id="loading" class="loading">
   CONNECTING TO LEDGER...
+</div>
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen" class="lock-screen hidden">
+  <div class="lock-inner">
+    <div style="text-align:center; margin-bottom: 32px;">
+      <div class="lock-badge">
+        <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span id="lock-badge-text">Restricted</span>
+      </div>
+    </div>
+    <h1 class="lock-title">THE<br>FUND<span class="dot">.</span></h1>
+    <p class="lock-sub">A family ledger, circa 2028.</p>
+    <div class="lock-form">
+      <div id="lock-setup-intro" class="hidden setup-intro">
+        <strong class="setup-intro-label">First time setup</strong>
+        <p class="setup-intro-text">Choose a password. Share it with your brother and cousin — they'll need it to open this dashboard.</p>
+      </div>
+      <input type="password" id="pw-input" class="input" placeholder="enter the password">
+      <input type="password" id="pw-confirm" class="input hidden" placeholder="confirm password">
+      <button id="pw-submit" class="btn-primary">Enter →</button>
+      <p id="pw-error" class="danger-text hidden"></p>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="pw-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <h3 class="modal-title">Change Password</h3>
+    <p class="modal-sub">Enter the current password, then a new one. All three of you will need the new password going forward.</p>
+    <div class="lock-form">
+      <input type="password" id="pw-current" class="input" placeholder="current password">
+      <input type="password" id="pw-new" class="input" placeholder="new password">
+      <input type="password" id="pw-new-confirm" class="input" placeholder="confirm new password">
+      <p id="pw-modal-error" class="danger-text hidden"></p>
+      <div style="display:flex; gap: 8px;">
+        <button id="pw-modal-cancel" class="btn-secondary">Cancel</button>
+        <button id="pw-modal-save" class="btn-primary" style="flex:1;">Save →</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="dashboard" class="hidden">
@@ -486,14 +678,6 @@
           <div>
             <label class="label-mono">Update balance (from Wealthfront app)</label>
             <input type="number" step="0.01" id="input-balance" class="input">
-          </div>
-          <div>
-            <label class="label-mono">Weekly contribution</label>
-            <input type="number" step="1" id="input-weekly" class="input">
-          </div>
-          <div>
-            <label class="label-mono">APY (decimal, e.g. 0.033)</label>
-            <input type="number" step="0.001" id="input-apy" class="input">
           </div>
         </div>
       </div>
@@ -546,28 +730,24 @@
     </section>
 
     <section class="mb-12">
-      <h2 class="section-header">━━━ Extra Deposits</h2>
-      <div class="deposit-log">
-        <p class="deposit-intro">Log any extra deposits beyond the weekly $24 (bonuses, birthday money, etc.) or track when you bump up contributions.</p>
-        <div class="deposit-form">
-          <input type="date" id="dep-date" class="input">
-          <input type="number" step="0.01" id="dep-amount" class="input" placeholder="amount">
-          <input type="text" id="dep-note" class="input" placeholder="note (optional)" style="font-family: 'Fraunces', serif; font-style: italic;">
-          <button id="dep-add" class="btn-primary btn-small">+ Log</button>
+      <div class="notes-header">
+        <h2 class="section-header" style="margin-bottom: 0;">━━━ Shared Notes</h2>
+        <div class="notes-actions">
+          <button id="notes-edit-btn" class="link-btn">edit</button>
+          <div id="notes-edit-actions" class="hidden" style="display:flex; gap: 12px;">
+            <button id="notes-cancel-btn" class="link-btn">cancel</button>
+            <button id="notes-save-btn" class="link-btn link-btn-accent">save</button>
+          </div>
         </div>
-        <div id="dep-summary" class="deposit-summary hidden"></div>
-        <div id="dep-list" class="deposit-list"></div>
-        <p id="dep-empty" class="empty-state">No extra deposits logged yet.</p>
       </div>
-    </section>
-
-    <section class="mb-12">
-      <h2 class="section-header">━━━ Shared Notes</h2>
-      <textarea id="notes" class="notes" placeholder="anything to share with the group — goals, ideas, reminders..." rows="5"></textarea>
+      <div id="notes-display" class="notes-display">
+        <p id="notes-text" class="notes-text">—</p>
+      </div>
+      <textarea id="notes" class="notes hidden" placeholder="anything to share with the group — goals, ideas, reminders..." rows="5"></textarea>
     </section>
 
     <footer>
-      <p class="footer-text">Shared state · synced live across all three of you</p>
+      <p class="footer-text">Shared state · synced live across all three of you · <button id="change-pw-btn" class="link-btn">change password</button></p>
       <p class="footer-quote">"The best time to plant a tree was 20 years ago. The second best time is now."</p>
     </footer>
   </div>
@@ -575,7 +755,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, update, remove, push, child, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, update, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 // ============ FIREBASE ============
 const firebaseConfig = {
@@ -592,15 +772,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const stateRef = ref(db, "fund/state");
-const depositsRef = ref(db, "fund/deposits");
+const passwordRef = ref(db, "fund/password");
 
 // ============ CONFIG ============
 const CASHOUT_DATE = new Date("2028-09-29T00:00:00");
+const APY = 0.033; // Wealthfront Cash Account APY - update here if rate changes
+const WEEKLY_CONTRIBUTION = 24; // $8 x 3 people every Sunday
 const DEFAULTS = {
   currentBalance: 3106.78,
   balanceUpdatedAt: new Date().toISOString(),
-  apy: 0.033,
-  weeklyContribution: 24,
   notes: "",
 };
 const ZEC_AMOUNT = 1;
@@ -608,10 +788,8 @@ const ZEC_COST_BASIS = 280;
 
 // ============ STATE ============
 let state = { ...DEFAULTS };
-let deposits = {};
 let zecPrice = null;
 let zecErr = false;
-let initialized = false;
 
 // ============ HELPERS ============
 const fmt = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
@@ -649,29 +827,132 @@ async function saveState(partial) {
   }
 }
 
-async function addDepositFB(date, amount, note) {
+// ============ PASSWORD FLOW ============
+async function initLockScreen() {
+  document.getElementById("loading").classList.add("hidden");
+
+  let existingPw = null;
   try {
-    const newRef = push(depositsRef);
-    await set(newRef, { date, amount, note: note || "", createdAt: Date.now() });
-    setStatus(true);
+    const snap = await get(passwordRef);
+    existingPw = snap.exists() ? snap.val() : null;
   } catch (e) {
-    console.error("add deposit failed", e);
-    setStatus(false);
+    console.error("password read failed", e);
   }
+
+  const lockScreen = document.getElementById("lock-screen");
+  const pwInput = document.getElementById("pw-input");
+  const pwConfirm = document.getElementById("pw-confirm");
+  const pwSubmit = document.getElementById("pw-submit");
+  const pwError = document.getElementById("pw-error");
+  const setupIntro = document.getElementById("lock-setup-intro");
+  const badgeText = document.getElementById("lock-badge-text");
+
+  lockScreen.classList.remove("hidden");
+
+  const isSetup = !existingPw;
+  if (isSetup) {
+    setupIntro.classList.remove("hidden");
+    pwConfirm.classList.remove("hidden");
+    pwInput.placeholder = "create a password";
+    pwSubmit.textContent = "Set Password →";
+    badgeText.textContent = "Setup";
+  }
+
+  const showError = (msg) => {
+    pwError.textContent = msg;
+    pwError.classList.remove("hidden");
+    pwInput.classList.add("input-error");
+    if (!pwConfirm.classList.contains("hidden")) pwConfirm.classList.add("input-error");
+  };
+  const clearError = () => {
+    pwError.classList.add("hidden");
+    pwInput.classList.remove("input-error");
+    pwConfirm.classList.remove("input-error");
+  };
+
+  pwInput.addEventListener("input", clearError);
+  pwConfirm.addEventListener("input", clearError);
+
+  const handleSubmit = async () => {
+    const pw = pwInput.value;
+    if (isSetup) {
+      if (pw.length < 4) return showError("Password must be at least 4 characters.");
+      if (pw !== pwConfirm.value) return showError("Passwords don't match.");
+      try {
+        await set(passwordRef, pw);
+        unlock();
+      } catch {
+        showError("Couldn't save password. Try again.");
+      }
+    } else {
+      if (pw === existingPw) unlock();
+      else { showError("Wrong password."); pwInput.value = ""; }
+    }
+  };
+
+  pwSubmit.addEventListener("click", handleSubmit);
+  [pwInput, pwConfirm].forEach(el => el.addEventListener("keydown", e => {
+    if (e.key === "Enter") handleSubmit();
+  }));
+  pwInput.focus();
 }
 
-async function removeDepositFB(id) {
-  try {
-    await remove(child(depositsRef, id));
-    setStatus(true);
-  } catch (e) {
-    console.error("remove deposit failed", e);
-    setStatus(false);
-  }
+function unlock() {
+  document.getElementById("lock-screen").classList.add("hidden");
+  initDashboard();
+}
+
+// ============ CHANGE PASSWORD MODAL ============
+function setupChangePasswordModal() {
+  const modal = document.getElementById("pw-modal");
+  const btn = document.getElementById("change-pw-btn");
+  const cancel = document.getElementById("pw-modal-cancel");
+  const save = document.getElementById("pw-modal-save");
+  const currentEl = document.getElementById("pw-current");
+  const newEl = document.getElementById("pw-new");
+  const confirmEl = document.getElementById("pw-new-confirm");
+  const err = document.getElementById("pw-modal-error");
+
+  const openModal = () => {
+    currentEl.value = ""; newEl.value = ""; confirmEl.value = "";
+    err.classList.add("hidden");
+    [currentEl, newEl, confirmEl].forEach(e => e.classList.remove("input-error"));
+    modal.classList.remove("hidden");
+    currentEl.focus();
+  };
+  const closeModal = () => modal.classList.add("hidden");
+
+  const showErr = (msg) => {
+    err.textContent = msg;
+    err.classList.remove("hidden");
+  };
+
+  btn.addEventListener("click", openModal);
+  cancel.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+  [currentEl, newEl, confirmEl].forEach(el => el.addEventListener("input", () => err.classList.add("hidden")));
+
+  save.addEventListener("click", async () => {
+    try {
+      const snap = await get(passwordRef);
+      const current = snap.val();
+      if (currentEl.value !== current) return showErr("Current password is wrong.");
+      if (newEl.value.length < 4) return showErr("New password must be at least 4 characters.");
+      if (newEl.value !== confirmEl.value) return showErr("New passwords don't match.");
+      await set(passwordRef, newEl.value);
+      closeModal();
+      alert("Password updated. Let your brother and cousin know.");
+    } catch (e) {
+      showErr("Something went wrong. Try again.");
+    }
+  });
 }
 
 // ============ INIT ============
-async function init() {
+async function initDashboard() {
+  document.getElementById("dashboard").classList.remove("hidden");
+  setupChangePasswordModal();
+
   try {
     const snap = await get(stateRef);
     if (!snap.exists()) {
@@ -690,75 +971,79 @@ async function init() {
       syncInputs();
       setStatus(true);
     }
-    if (!initialized) {
-      initialized = true;
-      document.getElementById("loading").classList.add("hidden");
-      document.getElementById("dashboard").classList.remove("hidden");
-    }
   }, (err) => {
     console.error("state read failed", err);
     setStatus(false);
-    if (!initialized) {
-      initialized = true;
-      document.getElementById("loading").classList.add("hidden");
-      document.getElementById("dashboard").classList.remove("hidden");
-    }
-  });
-
-  onValue(depositsRef, (snap) => {
-    deposits = snap.val() || {};
-    renderDeposits();
   });
 
   bindInputs();
+  setupNotesEditor();
   fetchZec();
 }
 
 function syncInputs() {
   const balInput = document.getElementById("input-balance");
-  const wkInput = document.getElementById("input-weekly");
-  const apyInput = document.getElementById("input-apy");
-  const notesEl = document.getElementById("notes");
-
   if (document.activeElement !== balInput) balInput.value = state.currentBalance;
-  if (document.activeElement !== wkInput) wkInput.value = state.weeklyContribution;
-  if (document.activeElement !== apyInput) apyInput.value = state.apy;
-  if (document.activeElement !== notesEl) notesEl.value = state.notes;
+  renderNotes();
 }
 
 function bindInputs() {
-  document.getElementById("dep-date").value = new Date().toISOString().slice(0, 10);
-
   const balInput = document.getElementById("input-balance");
-  const wkInput = document.getElementById("input-weekly");
-  const apyInput = document.getElementById("input-apy");
-  const notesEl = document.getElementById("notes");
-
   balInput.addEventListener("blur", () => {
     const v = parseFloat(balInput.value);
     if (!isNaN(v)) saveState({ currentBalance: v, balanceUpdatedAt: new Date().toISOString() });
   });
-  wkInput.addEventListener("blur", () => {
-    const v = parseFloat(wkInput.value);
-    if (!isNaN(v)) saveState({ weeklyContribution: v });
-  });
-  apyInput.addEventListener("blur", () => {
-    const v = parseFloat(apyInput.value);
-    if (!isNaN(v)) saveState({ apy: v });
-  });
-  notesEl.addEventListener("blur", () => saveState({ notes: notesEl.value }));
-
-  document.getElementById("dep-add").addEventListener("click", () => {
-    const date = document.getElementById("dep-date").value;
-    const amount = parseFloat(document.getElementById("dep-amount").value);
-    const note = document.getElementById("dep-note").value;
-    if (isNaN(amount) || amount === 0) return;
-    addDepositFB(date, amount, note);
-    document.getElementById("dep-amount").value = "";
-    document.getElementById("dep-note").value = "";
-  });
-
   document.getElementById("refresh-zec").addEventListener("click", fetchZec);
+}
+
+// ============ NOTES EDIT/SAVE FLOW ============
+function renderNotes() {
+  const textEl = document.getElementById("notes-text");
+  const textarea = document.getElementById("notes");
+  const isEditing = !textarea.classList.contains("hidden");
+  if (!isEditing) {
+    if (state.notes && state.notes.trim()) {
+      textEl.textContent = state.notes;
+      textEl.classList.remove("empty");
+    } else {
+      textEl.textContent = "No notes yet. Click edit to add some.";
+      textEl.classList.add("empty");
+    }
+  }
+}
+
+function setupNotesEditor() {
+  const display = document.getElementById("notes-display");
+  const textarea = document.getElementById("notes");
+  const editBtn = document.getElementById("notes-edit-btn");
+  const actions = document.getElementById("notes-edit-actions");
+  const saveBtn = document.getElementById("notes-save-btn");
+  const cancelBtn = document.getElementById("notes-cancel-btn");
+
+  const enterEditMode = () => {
+    textarea.value = state.notes || "";
+    display.classList.add("hidden");
+    textarea.classList.remove("hidden");
+    editBtn.classList.add("hidden");
+    actions.classList.remove("hidden");
+    actions.style.display = "flex";
+    textarea.focus();
+  };
+
+  const exitEditMode = () => {
+    display.classList.remove("hidden");
+    textarea.classList.add("hidden");
+    editBtn.classList.remove("hidden");
+    actions.classList.add("hidden");
+    renderNotes();
+  };
+
+  editBtn.addEventListener("click", enterEditMode);
+  cancelBtn.addEventListener("click", exitEditMode);
+  saveBtn.addEventListener("click", async () => {
+    await saveState({ notes: textarea.value });
+    exitEditMode();
+  });
 }
 
 async function fetchZec() {
@@ -805,7 +1090,7 @@ async function fetchZec() {
 function render() {
   document.getElementById("cash-balance").textContent = fmt(state.currentBalance);
   document.getElementById("cash-updated").textContent = `last updated ${dateStr(state.balanceUpdatedAt)}`;
-  document.getElementById("apy-badge").textContent = `${(state.apy * 100).toFixed(2)}% APY`;
+  document.getElementById("apy-badge").textContent = `${(APY * 100).toFixed(2)}% APY`;
 
   const zecValue = zecErr || zecPrice === null ? ZEC_COST_BASIS : zecPrice * ZEC_AMOUNT;
   const total = state.currentBalance + zecValue;
@@ -817,48 +1102,14 @@ function render() {
   document.getElementById("countdown-sub").textContent = `days · ${weeks} weeks`;
 
   const start = new Date(state.balanceUpdatedAt);
-  document.getElementById("proj-2026").textContent = fmtShort(projectBalance(state.currentBalance, start, new Date("2026-12-31"), state.weeklyContribution, state.apy));
-  document.getElementById("proj-2027").textContent = fmtShort(projectBalance(state.currentBalance, start, new Date("2027-12-31"), state.weeklyContribution, state.apy));
-  document.getElementById("proj-cashout").textContent = fmtShort(projectBalance(state.currentBalance, start, CASHOUT_DATE, state.weeklyContribution, state.apy));
+  document.getElementById("proj-2026").textContent = fmtShort(projectBalance(state.currentBalance, start, new Date("2026-12-31"), WEEKLY_CONTRIBUTION, APY));
+  document.getElementById("proj-2027").textContent = fmtShort(projectBalance(state.currentBalance, start, new Date("2027-12-31"), WEEKLY_CONTRIBUTION, APY));
+  document.getElementById("proj-cashout").textContent = fmtShort(projectBalance(state.currentBalance, start, CASHOUT_DATE, WEEKLY_CONTRIBUTION, APY));
 
-  document.getElementById("proj-disclaimer").textContent = `Assumes ${fmt(state.weeklyContribution)}/week every Sunday and a steady ${(state.apy*100).toFixed(2)}% APY with daily accrual. Real rates change — Wealthfront's APY follows the federal funds rate. ZCash value isn't included here because crypto projections are basically fiction.`;
+  document.getElementById("proj-disclaimer").textContent = `Assumes ${fmt(WEEKLY_CONTRIBUTION)}/week every Sunday and a steady ${(APY*100).toFixed(2)}% APY with daily accrual. Real rates change — Wealthfront's APY follows the federal funds rate. ZCash value isn't included here because crypto projections are basically fiction.`;
 }
 
-function renderDeposits() {
-  const listEl = document.getElementById("dep-list");
-  const summaryEl = document.getElementById("dep-summary");
-  const emptyEl = document.getElementById("dep-empty");
-
-  const entries = Object.entries(deposits).map(([id, d]) => ({ id, ...d }));
-  entries.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-  if (entries.length === 0) {
-    listEl.innerHTML = "";
-    summaryEl.classList.add("hidden");
-    emptyEl.classList.remove("hidden");
-  } else {
-    emptyEl.classList.add("hidden");
-    summaryEl.classList.remove("hidden");
-    const total = entries.reduce((s, d) => s + Number(d.amount), 0);
-    summaryEl.textContent = `${entries.length} entries · ${fmt(total)} total`;
-    listEl.innerHTML = entries.map(d => `
-      <div class="deposit-row">
-        <div class="deposit-date">${dateStr(d.date)}</div>
-        <div class="deposit-amount" style="color: ${d.amount >= 0 ? 'var(--ink)' : 'var(--danger)'};">${d.amount >= 0 ? "+" : ""}${fmt(d.amount)}</div>
-        <div class="deposit-note">${d.note ? escapeHtml(d.note) : "—"}</div>
-        <button class="delete-btn" data-id="${d.id}" title="delete">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-        </button>
-      </div>
-    `).join("");
-
-    listEl.querySelectorAll(".delete-btn").forEach(btn => {
-      btn.addEventListener("click", () => removeDepositFB(btn.dataset.id));
-    });
-  }
-}
-
-init();
+initLockScreen();
 </script>
 
 </body>
